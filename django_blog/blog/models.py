@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils import timezone
 
 
 class Tag(models.Model):
@@ -16,6 +17,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    published_date = models.DateTimeField(default=timezone.now)  # Added field
     tags = models.ManyToManyField(Tag, related_name="posts", blank=True)
 
     class Meta:
@@ -32,8 +34,8 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     content = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)   # set once on create
-    updated_at = models.DateTimeField(auto_now=True)       # updates on each save
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["created_at"]
@@ -42,5 +44,4 @@ class Comment(models.Model):
         return f"Comment by {self.author.username} on {self.post.title}"
 
     def get_absolute_url(self):
-        # redirect to the post detail (comments are shown on post detail)
         return self.post.get_absolute_url()
