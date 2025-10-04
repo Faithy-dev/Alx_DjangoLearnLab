@@ -4,6 +4,15 @@ from django import forms
 from .models import Post, Comment, Tag
 
 
+# Custom TagWidget class
+class TagWidget(forms.TextInput):
+    def __init__(self, attrs=None):
+        default_attrs = {"class": "form-control", "placeholder": "Enter tags separated by commas"}
+        if attrs:
+            default_attrs.update(attrs)
+        super().__init__(attrs=default_attrs)
+
+
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
@@ -12,13 +21,7 @@ class PostForm(forms.ModelForm):
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "content": forms.Textarea(attrs={"class": "form-control"}),
-            # Added TagWidget
-            "tags": forms.TextInput(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": "Enter tags separated by commas",
-                }
-            ),
+            "tags": TagWidget(),   # ✅ Using TagWidget here
         }
 
 
