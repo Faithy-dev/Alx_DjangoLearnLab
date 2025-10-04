@@ -62,7 +62,7 @@ def search_posts(request):
     query = request.GET.get("q", "").strip()
     results = Post.objects.all()
     if query:
-        results = results.filter(
+        results = Post.objects.filter(
             Q(title__icontains=query) |
             Q(content__icontains=query) |
             Q(tags__name__icontains=query)
@@ -77,7 +77,7 @@ def posts_by_tag(request, tag_name):
 
 
 # -----------------------
-# Comment views (requested)
+# Comment views
 # -----------------------
 class CommentCreateView(LoginRequiredMixin, CreateView):
     model = Comment
@@ -85,7 +85,6 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
     template_name = "blog/comment_form.html"
 
     def dispatch(self, request, *args, **kwargs):
-        # Expect URL pattern to pass post_pk (e.g., path('posts/<int:post_pk>/comments/new/', ...))
         self.post = get_object_or_404(Post, pk=self.kwargs.get("post_pk"))
         return super().dispatch(request, *args, **kwargs)
 
@@ -104,7 +103,6 @@ class CommentUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = "blog/comment_form.html"
 
     def form_valid(self, form):
-        # ensure the author remains the same (or you can omit if not needed)
         form.instance.author = self.request.user
         return super().form_valid(form)
 
@@ -125,5 +123,4 @@ class CommentDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return self.request.user == comment.author
 
     def get_success_url(self):
-        # after deleting a comment, go back to the related post
         return self.object.post.get_absolute_url()
